@@ -1,0 +1,129 @@
+# Role & Architecture Blueprint: The Macro Economic Truth Engine
+
+You are a Senior Principal Full-Stack & Graphics Engineer tasked with building a production-grade 3D scrollytelling web application titled **"The Macro Economic Truth Engine"**.
+
+The goal of this application is to educate users on central bank currency expansion (M2 printing), purchasing power loss, and real asset inflation using real-time API data paired with high-retention, GPU-accelerated spatial mechanics.
+
+---
+
+## 1. Technical Stack Specifications
+
+* **Framework:** Next.js 14+ (App Router, TypeScript strict mode)
+* **Graphics Engine:** Three.js via `@react-three/fiber` (R3F) and `@react-three/drei`
+* **Animation & Scroll Sync:** `@studio-freight/lenis` (Lenis Smooth Scroll) combined with GSAP `ScrollTrigger`
+* **State & Query Engine:** Zustand (for 3D UI sync) + TanStack Query / React Query (for API caching)
+* **Database & Auth:** Supabase (PostgreSQL) OR SQLite/Postgres with Prisma ORM
+* **Styling & Components:** Tailwind CSS, Shadcn UI, Lucide Icons
+* **Data Pipelines:** Next.js Server Actions & API Route Handlers
+
+---
+
+## 2. Core Feature Specifications
+
+### Feature A: The Spatial Scrollytelling Experience (`app/page.tsx`)
+Build a continuous 3D canvas that locks camera movements to page scroll progress across 4 distinct visual scenes:
+
+1. **Scene 1: The Inflation Tank (Global M2 Expansion)**
+   * **Visual:** A glass 3D vessel holding physical goods (procedural gold bars, houses, energy cubes). A translucent volumetric/fluid shader surrounds the items representing total M2 paper currency in circulation.
+   * **Mechanic:** As the user scrolls, live M2 data increases the fluid volume, displacing the goods and showing visually how currency dilution inflates asset costs.
+2. **Scene 2: Purchasing Power Time-Machine**
+   * **Visual:** An interactive 3D comparative timeline.
+   * **Mechanic:** User inputs their currency savings or hourly rate. The canvas dynamically swaps 3D models of tangible goods (e.g., gallons of fuel, square feet of real estate, ounces of gold) showing exact purchasing power decay from 1971 to the present day.
+3. **Scene 3: Real-Time Currency Dilution Ticker**
+   * **Visual:** A high-speed, particle-driven 3D counter.
+   * **Mechanic:** Calculates true inflation loss per second ($\text{CPI} + \text{M2 Growth Rate}$) and displays the live dollar value decaying in real time.
+4. **Scene 4: The Hard-Asset Benchmark**
+   * **Visual:** Side-by-side 3D rendering of inflating paper currency vs. hard-capped assets (Gold, Bitcoin, Land).
+
+---
+
+### Feature B: Admin Control Panel (`app/admin/page.tsx`)
+Build a secure, authenticated management dashboard with 3 primary sub-views:
+
+1. **API Key Management:** UI form to configure, test, and persist API keys for:
+   * **FRED API** (Federal Reserve Economic Data: `WM2NS`, `CPIAUCSL`, `FEDFUNDS`)
+   * **World Bank Open Data API** (`NY.GDP.MKTP.CD`, `FP.CPI.TOTL.ZG`)
+   * **IMF Data Mapper API** (Global Inflation & Debt Ratios)
+   * **CoinGecko API** (Live Crypto / Fiat pairs)
+   * **EIA API** (Energy Information Administration - Oil/Gas benchmarks)
+2. **Data Pipeline & Cache Controls:**
+   * Status indicators showing last successful fetch time, rate limit status, and response latency.
+   * A "Manual Re-Sync" button that triggers server-side data extraction cron jobs.
+   * Mock Data Fallback toggle to inject test JSON datasets if external APIs are unreachable.
+3. **Visual & 3D Configurator:**
+   * Real-time sliders to adjust global scene lighting, fluid color, fog density, camera FOV, and scroll damping without needing code recompiles.
+
+---
+
+## 3. Dynamic 3D Asset Protocol & AI-Human Fallback System
+
+**CRITICAL IMPLEMENTATION RULE:** Never fail rendering due to missing external `.gltf` or `.glb` files.
+
+1. **Procedural Geometry Loader:** Build a fallback utility (`components/3d/FallbackMesh.tsx`) that renders high-quality procedural Three.js primitives (metallic rounded boxes, glass-shader spheres, wireframe grids) when custom 3D models are absent.
+2. **Asset Manager Hook (`useAssetManager.ts`):** Check `/public/models/` for GLTF assets dynamically. If missing, fall back to procedural primitives immediately.
+3. **User Prompting Console:** When a procedural mesh is used in place of a dedicated 3D model, output a formatted request in the developer console and render a collapsible debug badge in the UI:
+   ```text
+   [3D Asset Request]: Missing custom model for 'housing_unit.glb'. 
+   Currently rendering procedural fallback. Please place GLB file in /public/models/housing_unit.glb.
+4. Database Schema Specification (Prisma / SQL)
+Ensure your database architecture supports the following models:
+
+Code snippet
+model ApiConfig {
+  id          String   @id @default(uuid())
+  provider    String   @unique // e.g., "FRED", "WORLDBANK", "COINGECKO"
+  apiKey      String?
+  isEnabled   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model EconomicCache {
+  id          String   @id @default(uuid())
+  metricKey   String   @unique // e.g., "US_M2_MONEY_SUPPLY", "US_CPI"
+  dataValue   Float
+  rawPayload  Json
+  fetchedAt   DateTime @default(now())
+}
+
+model SceneSettings {
+  id           String   @id @default("default")
+  fluidOpacity Float    @default(0.65)
+  lightIntensity Float  @default(1.5)
+  scrollDamping Float   @default(0.1)
+}
+5. Execution Roadmap & Step-by-Step Directives
+Proceed strictly in the following sequence:
+
+Step 1: Core Setup
+
+Initialize Next.js App Router project with TypeScript, Tailwind CSS, and Shadcn UI components.
+
+Install dependencies: three, @react-three/fiber, @react-three/drei, gsap, @studio-freight/lenis, zustand, @tanstack/react-query, @prisma/client, lucide-react.
+
+Step 2: Database & Backend Infrastructure
+
+Setup local database connection and apply the schema above.
+
+Implement API handler routes:
+
+GET /api/econ-data (Serves cached macroeconomic metrics to the 3D scene)
+
+POST /api/admin/config (Saves API keys from admin panel)
+
+POST /api/admin/sync (Fetches fresh data from FRED/World Bank/IMF and updates cache)
+
+Step 3: Admin Panel UI Development
+
+Build the /admin page using Shadcn tab components, API input fields, connection test buttons, and data-sync triggers.
+
+Step 4: 3D Canvas & Scroll Engine Integration
+
+Create components/canvas/SceneCanvas.tsx with R3F Canvas context, environmental lighting, and camera controls.
+
+Integrate @studio-freight/lenis smooth scroll with GSAP ScrollTrigger to bind window scroll position directly to R3F camera keyframes and shader parameters.
+
+Step 5: Scene Polish & Asset Fallback Verification
+
+Implement procedural fallbacks for all scenes. Verify that the app launches seamlessly with zero external GLB files present.
+
+Please inspect your workspace, configure your initial environment files, create the folder structure, and execute Step 1.
